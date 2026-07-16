@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validación de Estímulos - Estudio de Validación Emocional</title>
+  
+  <!-- ============================================
+       CARGA DE DEPENDENCIAS
+       ============================================ -->
+  <!-- jsPsych Core -->
+  <script src="jspsych/dist/jspsych.js"></script>
+  
+  <!-- Plugins de jsPsych -->
+  <script src="jspsych/dist/plugin-html-button-response.js"></script>
+  <script src="jspsych/dist/plugin-survey-text.js"></script>
+  <script src="jspsych/dist/plugin-html-keyboard-response.js"></script>
+  <script src="jspsych/dist/plugin-survey-html-form.js"></script>
+  <script src="jspsych/dist/plugin-survey-multi-choice.js"></script>
+  <script src="jspsych/dist/plugin-html-slider-response.js"></script>
+  <script src="jspsych/dist/plugin-survey-likert.js"></script>
+  <script src="jspsych/dist/plugin-survey-multi-select.js"></script>
+  <script src="jspsych/dist/plugin-fullscreen.js"></script>
+  <script src="jspsych/dist/plugin-instructions.js"></script>
+  <script src="jspsych/dist/plugin-preload.js"></script>
+  <script src="jspsych/stimuli.js"></script>
+  
+  <!-- Plugins de terceros -->
+  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+  
+  <!-- Estilos -->
+  <link href="jspsych/dist/jspsych.css" rel="stylesheet" type="text/css" />
+
+  <!-- ============================================
+       ESTILOS PERSONALIZADOS
+       ============================================ -->
+  <style>
+    /* Clase para los estímulos principales */
+    .estimulo {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    /* Clase para los atributos a evaluar */
+    .atributo {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    /* Estilos para selects personalizados */
+    .custom-select {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background-color: white;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+    }
+
+    .custom-select:hover {
+      border-color: #999;
+    }
+
+    .custom-select:focus {
+      border-color: #4CAF50;
+      outline: none;
+      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+
+    /* Contenedor para mensajes */
+    .message-container {
+      max-width: 650px;
+      margin: 0 auto;
+      text-align: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* Logo container */
+    .logo-container {
+      margin-bottom: 30px;
+    }
+
+    .logo-container img {
+      height: 65px;
+      display: block;
+      margin: 0 auto 15px auto;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- jsPsych inyectará el contenido aquí -->
+  <div id="jspsych-experiment-container"></div>
+
+  <script>
+    /**
+     * ============================================
+     * CONFIGURACIÓN PRINCIPAL DE jsPsych
+     * ============================================
+     * Inicializa el motor del experimento con las
+     * configuraciones necesarias.
+     */
+    const jsPsych = initJsPsych({
+      // Función que se ejecuta al finalizar el experimento
+      on_finish: function() {
+        // Muestra los datos en formato JSON para depuración
+        jsPsych.data.displayData('json');
+      },
+      // Configuración para evitar pérdida de datos
+      on_close: function() {
+        console.log('⚠️ El participante cerró la ventana antes de terminar.');
+      }
+    });
+
+    /**
+     * ============================================
+     * CONFIGURACIONES GLOBALES
+     * ============================================
+     */
+
+    // Previene el cierre accidental de la página
+    window.addEventListener('beforeunload', (event) => {
+      event.preventDefault();
+      event.returnValue = '¿Estás seguro de que quieres salir? Perderás tu progreso.';
+    });
+
+    /**
+     * ============================================
+     * DEFINICIÓN DE ESTÍMULOS
+     * ============================================
+     * Aquí se definen las palabras que se presentarán
+     * durante el experimento.
+     */
+
+    /** Estímulos relacionados con alimentos */
+    const ESTIMULOS_ALIMENTOS = [
+      { palabra: 'Manzana' },
+      { palabra: 'Pizza' }
+    ];
+
+    /** Estímulos relacionados con objetos cotidianos */
+    const ESTIMULOS_OBJETOS = [
+      { palabra: 'Lápiz' },
+      { palabra: 'Silla' }
+    ];
+
+    /**
+     * ============================================
+     * DEFINICIÓN DE ATRIBUTOS (VAS)
+     * ============================================
+     * Cada atributo representa una dimensión a evaluar
+     * con una escala visual análoga (VAS).
+     */
+
+    /** Atributos comunes para todos los estímulos */
+    const ATRIBUTOS_COMUNES = [
+      {
+        id: 'familiaridad',
+        texto: '¿Qué tan familiar te resulta esta palabra?',
+        min: 'Nada familiar',
+        max: 'Muy familiar'
+      },
+      {
+        id: 'valencia',
+        texto: '¿Qué tan agradable/desagradable te hace sentir?',
+        min: 'Muy desagradable',
+        max: 'Muy agradable'
+      },
+      {
+        id: 'arousal',
+        texto: '¿Qué nivel de activación/emoción te provoca?',
+        min: 'Calma absoluta',
+        max: 'Activación máxima'
+      },
+      {
+        id: 'control',
+        texto: '¿Qué tanto control sientes sobre la emoción que te genera?',
+        min: 'Ningún control',
+        max: 'Control total'
+      }
+    ];
+
+    /** Atributos adicionales solo para alimentos */
+    const ATRIBUTOS_ALIMENTOS_EXTRA = [
+      {
+        id: 'deseo_comer',
+        texto: '¿Qué tanto deseo tienes de comer esto ahora mismo?',
+        min: 'Ningún deseo',
+        max: 'Deseo intenso'
+      },
+      {
+        id: 'apetitoso',
+        texto: '¿Qué tan apetitoso te parece este alimento?',
+        min: 'Nada apetitoso',
+        max: 'Muy apetitoso'
+      },
+      {
+        id: 'saludable',
+        texto: '¿Qué tan saludable consideras que es este alimento?',
+        min: 'Muy perjudicial',
+        max: 'Muy saludable'
+      }
+    ];
+
+    /**
+     * ============================================
+     * FUNCIONES AUXILIARES
+     * ============================================
+     */
+
+    /**
+     * Crea un objeto de configuración para un slider VAS
+     * @param {string} palabra - La palabra a evaluar
+     * @param {Object} atributo - El atributo a evaluar
+     * @param {string} tipo - 'alimento' o 'objeto'
+     * @returns {Object} Configuración del ensayo
+     */
+    // Modificar la función crearEnsayoSlider
+    function crearEnsayoSlider(palabra, atributo, tipo) {
+      return {
+        type: jsPsychHtmlSliderResponse,
+        stimulus: `
+          <div class="estimulo">${palabra.toUpperCase()}</div>
+          <div class="atributo">${atributo.texto}</div>
+        `,
+        labels: [atributo.min, atributo.max],
+        min: 0,
+        max: 100,
+        slider_start: 50,
+        require_movement: true,
+        slider_width: 600,
+        button_label: 'Continuar',
+        on_start: function() {
+          // Pequeño retraso para asegurar que el DOM está listo
+          setTimeout(() => {
+            const slider = document.querySelector('input[type="range"]');
+            const button = document.querySelector('.jspsych-html-slider-response button');
+            
+            if (slider) {
+              // Forzar el foco en el slider
+              slider.focus();
+              
+              // Asegurar que el slider funciona correctamente en fullscreen
+              slider.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+              });
+              
+              slider.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+              });
+            }
+            
+            // Si no se puede mover el slider, permitir clic directo en el botón
+            if (button) {
+              button.addEventListener('click', function(e) {
+                if (slider && slider.value === '50') {
+                  // Si el slider no se ha movido, mostrar un mensaje
+                  alert('Por favor, mueve el deslizador antes de continuar.');
+                  e.preventDefault();
+                }
+              });
+            }
+          }, 200);
+        },
+        data: {
+          stimulus: 'evaluacion_vas',
+          tipo_estimulo: tipo,
+          palabra: palabra,
+          atributo_evaluado: atributo.id
+        }
+      };
+    }
+
+    /**
+     * ============================================
+     * TIMELINE - BIENVENIDA
+     * ============================================
+     * Primera pantalla del experimento con modo
+     * pantalla completa.
+     */
+
+    const BIENVENIDA = {
+      type: jsPsychFullscreen,
+      fullscreen_mode: true,
+      message: `
+        <div class="message-container">
+          <div class="logo-container">
+            <img src="IMG/logo_uaeh.svg" alt="Logo UAEH">
+            <img src="IMG/logo_colpos.svg" alt="Logo COLPOS">
+            <img src="IMG/logo_icsa.svg" alt="Logo ICSA">
+          </div>
+          <h2>¡Bienvenido!</h2>
+          <p style="font-size: 18px; color: #555;">
+            Los responsables de este proyecto de investigación
+          </p>
+          <p style="font-size: 20px; color: #000;">
+            <strong>¡AGRADECEN TU PARTICIPACIÓN!</strong>
+          </p>
+          <p style="margin-top: 25px; line-height: 1.8; color: #333;">
+            Psic. Yair Romero Zuarez <br>
+            Dr. Ricardo I. Bravo Chávez <br>
+            Dra. Rebeca María Elena Guzmán Saldaña
+          </p>
+        </div>
+      `,
+      button_label: 'Comenzar',
+      on_finish: function() {
+        // Salir de pantalla completa desupés de la bienvenida
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(err => {
+            console.log('Error al salir de pantalla completa:', err);
+          });
+        }
+      }
+    };
+
+    /**
+     * ============================================
+     * TIMELINE - CONSENTIMIENTO INFORMADO
+     * ============================================
+     * Muestra el formulario de consentimiento y
+     * maneja la aceptación o rechazo.
+     */
+
+    const CONSENTIMIENTO_INFORMADO = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+        <div style="max-width: 700px; margin: 0 auto; text-align: justify; font-family: sans-serif; line-height: 1.5;">
+          <p style="font-size: 22px; text-align: center;">
+            <strong>FORMULARIO DE CONSENTIMIENTO INFORMADO DIGITAL</strong>
+          </p>
+          <p style="text-align: center; color: #555;">
+            <strong>Proyecto:</strong> "Validación emocional de palabras relacionadas con alimentos"<br>
+            <strong>Contacto:</strong> [Insertar Correo Institucional]
+          </p>
+          <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
+          <p>Por favor, lea atentamente la siguiente información antes de decidir su participación:</p>
+          <p>
+            <strong>1. ¿En qué consiste el estudio?</strong><br>
+            El objetivo de este proyecto es estudiar cómo las personas responden y evalúan emocionalmente diferentes tipos de palabras relacionadas con alimentos. Su participación consistirá en responder un breve cuestionario sociodemográfico y realizar una tarea en línea de evaluación afectiva. La duración estimada es de <strong>20 minutos</strong>.
+          </p>
+          <p>
+            <strong>2. Voluntariedad y derecho a retirarse</strong><br>
+            Su participación es 100% voluntaria. Tiene el derecho de abandonar el estudio en cualquier momento cerrando la pestaña de su navegador.
+          </p>
+          <p>
+            <strong>3. Riesgos y Confidencialidad</strong><br>
+            Este estudio se considera de <strong>riesgo mínimo</strong>. Los datos recolectados serán <strong>completamente anónimos</strong>.
+          </p>
+          <p>
+            <strong>Declaración de Consentimiento:</strong> Al presionar "Acepto participar", manifiesto que soy mayor de edad, que he leído esta información y que es mi decisión libre, consciente y voluntaria participar en esta investigación.
+          </p>
+        </div>
+      `,
+      choices: [
+        '<strong>Acepto participar y comenzar</strong>',
+        'No acepto / Salir'
+      ],
+      /**
+       * Maneja la respuesta del consentimiento
+       * @param {Object} data - Datos de la respuesta
+       */
+      on_finish: function(data) {
+        // Si rechaza (índice 1), finaliza el experimento
+        if (data.response === 1) {
+          jsPsych.endExperiment(`
+            <div style="max-width: 600px; margin: 50px auto; text-align: center; font-family: sans-serif;">
+              <h3>El experimento ha finalizado</h3>
+              <p>Usted decidió no aceptar los términos de participación. Ya puede cerrar esta ventana.</p>
+            </div>
+          `);
+        }
+      }
+    };
+
+    /**
+     * ============================================
+     * TIMELINE - DATOS SOCIODEMOGRÁFICOS
+     * ============================================
+     * Cuestionario para recopilar información
+     * demográfica de los participantes.
+     */
+
+    /** Fecha de nacimiento */
+    const FECHA_NACIMIENTO = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: 'Fecha de nacimiento',
+      html: `
+        <p>
+          <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+        </p>
+      `,
+      button_label: 'Continuar',
+      data: { stimulus: 'fecha_nacimiento' }
+    };
+
+    /** Sexo biológico */
+    const SEXO = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: 'Sexo biológico:',
+        name: 'sexo',
+        options: ['Hombre', 'Mujer'],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'sexo' }
+    };
+
+    /** Nacionalidad */
+    const NACIONALIDAD = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: '¿Eres mexicano?',
+        name: 'nacionalidad',
+        options: ['Sí', 'No'],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'nacionalidad' }
+    };
+
+    /** Lengua materna */
+    const LENGUA_MATERNA = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: '¿Tu lengua materna es el español?',
+        name: 'lengua_materna',
+        options: ['Sí', 'No'],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'lengua_materna' }
+    };
+
+    /** Estado de la república */
+    const ESTADO_REPUBLICA = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: '<p>¿En qué <b>estado</b> de la república vives?</p>',
+      html: `
+        <select name="estado" class="custom-select" required>
+          <option value="" disabled selected hidden>Selecciona una opción...</option>
+          <option value="Aguascalientes">Aguascalientes</option>
+          <option value="Baja California">Baja California</option>
+          <option value="Baja California Sur">Baja California Sur</option>
+          <option value="Campeche">Campeche</option>
+          <option value="Chiapas">Chiapas</option>
+          <option value="Chihuahua">Chihuahua</option>
+          <option value="Ciudad de México">Ciudad de México</option>
+          <option value="Coahuila">Coahuila</option>
+          <option value="Colima">Colima</option>
+          <option value="Durango">Durango</option>
+          <option value="Estado de México">Estado de México</option>
+          <option value="Guanajuato">Guanajuato</option>
+          <option value="Guerrero">Guerrero</option>
+          <option value="Hidalgo">Hidalgo</option>
+          <option value="Jalisco">Jalisco</option>
+          <option value="Michoacán">Michoacán</option>
+          <option value="Morelos">Morelos</option>
+          <option value="Nayarit">Nayarit</option>
+          <option value="Nuevo León">Nuevo León</option>
+          <option value="Oaxaca">Oaxaca</option>
+          <option value="Puebla">Puebla</option>
+          <option value="Querétaro">Querétaro</option>
+          <option value="Quintana Roo">Quintana Roo</option>
+          <option value="San Luis Potosí">San Luis Potosí</option>
+          <option value="Sinaloa">Sinaloa</option>
+          <option value="Sonora">Sonora</option>
+          <option value="Tabasco">Tabasco</option>
+          <option value="Tamaulipas">Tamaulipas</option>
+          <option value="Tlaxcala">Tlaxcala</option>
+          <option value="Veracruz">Veracruz</option>
+          <option value="Yucatán">Yucatán</option>
+          <option value="Zacatecas">Zacatecas</option>
+        </select>
+      `,
+      button_label: 'Continuar',
+      data: { stimulus: 'estado_republica' }
+    };
+
+    /** Grado académico */
+    const GRADO_ACADEMICO = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: '¿Cuál es tu grado académico <b>concluido</b> más alto?',
+        name: 'grado_academico',
+        options: [
+          'Sin estudios',
+          'Primaria',
+          'Secundaria',
+          'Preparatoria (Bachillerato o equivalente)',
+          'Licenciatura',
+          'Maestría',
+          'Doctorado'
+        ],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'grado_academico' }
+    };
+
+    /** Ocupación actual (versión mejorada) */
+    const OCUPACION = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: '<p style="font-size: 18px;"><b>¿Cuál es tu ocupación actual?</b></p>',
+      html: `
+        <div style="margin: 20px 0;">
+          <select name="ocupacion" class="custom-select" required>
+            <option value="" disabled selected hidden>Selecciona una opción...</option>
+            <option value="Estudiante">Estudiante</option>
+            <option value="Empleado">Empleado</option>
+            <option value="Empleador o dueño de negocio">Empleador o dueño de negocio</option>
+            <option value="Profesional independiente">Profesional independiente</option>
+            <option value="No estudio ni trabajo">No estudio ni trabajo</option>
+          </select>
+        </div>
+      `,
+      button_label: 'Continuar',
+      data: { stimulus: 'ocupacion' }
+    };
+
+    /** Estado civil */
+    const ESTADO_CIVIL = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: '¿Cuál es su estado civil actual?',
+        name: 'estado_civil',
+        options: [
+          'Soltero',
+          'Casado',
+          'Union libre',
+          'Divorciado',
+          'Separado',
+          'Viudo'
+        ],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'estado_civil' }
+    };
+
+    /** Dependientes económicos */
+    const DEPENDIENTES = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: '¿Cuántas personas dependen económicamente de sus ingresos actuales?',
+        name: 'dependientes',
+        options: [
+          'Ninguna',
+          '1 persona',
+          '2 personas',
+          '3 personas',
+          '4 o más personas'
+        ],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'dependientes_economicos' }
+    };
+
+    /** Composición del hogar (multiselección) */
+    const COMPOSICION_HOGAR = {
+      type: jsPsychSurveyMultiSelect,
+      questions: [{
+        prompt: '¿Con quién o quiénes vive usted actualmente?',
+        name: 'composicion_hogar',
+        options: [
+          'Sola/Solo',
+          'Con mi pareja / cónyuge',
+          'Con mis padres / suegros',
+          'Con otros familiares (hermanos, tíos, abuelos, etc.)',
+          'Con personas sin parentesco (amigos, compañeros de piso)'
+        ],
+        required: true,
+        horizontal: false
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'composicion_hogar' }
+    };
+
+    /** Número de personas en vivienda */
+    const VIVIENDA = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: 'Incluyéndose a usted, ¿cuántas personas viven actualmente en su hogar?',
+        name: 'vivienda',
+        options: [
+          '1 persona (vivo solo/a)',
+          '2 personas',
+          '3 a 4 personas',
+          '5 o más personas'
+        ],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'personas_vivienda' }
+    };
+
+    /** Estilo de alimentación */
+    const ALIMENTACION = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: '¿Cuál de las siguientes opciones describe mejor su estilo de alimentación?',
+        name: 'alimentacion',
+        options: [
+          'Omnívora',
+          'Vegetariana',
+          'Vegana',
+          'Otra'
+        ],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'estilo_alimentacion' }
+    };
+
+    /** Régimen dietético */
+    const DIETA = {
+      type: jsPsychSurveyMultiChoice,
+      questions: [{
+        prompt: '¿Se encuentra usted siguiendo algún régimen dietético o dieta especial en la actualidad?',
+        name: 'dieta',
+        options: ['Sí', 'No'],
+        required: true
+      }],
+      button_label: 'Continuar',
+      data: { stimulus: 'regimen_dieta' }
+    };
+
+    /** Estatura y peso */
+    const ESTATURA_PESO = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: '<p><b>Por favor, introduzca sus datos estimados de estatura y peso:</b></p>',
+      html: `
+        <p>
+          Mido aproximadamente
+          <input name="estatura" type="number" step="0.01" min="0.50" max="2.50" required placeholder="Ej. 1.72" /> metros
+          y peso aproximadamente
+          <input name="peso" type="number" step="0.1" min="20" max="300" required placeholder="Ej. 65.5" /> kg.
+        </p>
+      `,
+      button_label: 'Continuar',
+      data: { stimulus: 'estatura_peso' }
+    };
+
+    /**
+     * ============================================
+     * TIMELINE - INSTRUCCIONES Y COMPRENSIÓN
+     * ============================================
+     * Sección de instrucciones con verificación
+     * de comprensión mediante bucle.
+     */
+
+    /** Páginas de instrucciones */
+    const INSTRUCCIONES_PAGINAS = [
+      // Página 1 - Introducción
+      `
+        <div style="max-width: 600px; text-align: center; margin: 0 auto; line-height: 1.6;">
+          <p><b>¡Bienvenido/a al experimento!</b></p>
+          <p>A continuación, se le presentarán una serie de estímulos (palabras) que deberá evaluar bajo diferentes criterios utilizando una <b>escala visual análoga (deslizador)</b>.</p>
+          <p>Coloque el marcador y arrástrelo a lo largo de la línea con el mouse o la pantalla táctil para seleccionar la intensidad que mejor represente lo que siente ante cada elemento.</p>
+        </div>
+      `,
+      // Página 2 - Criterios básicos
+      `
+        <div style="max-width: 650px; text-align: left; margin: 0 auto; line-height: 1.5; font-size: 14px;">
+          <p>Para cada estímulo general, responderá siempre a estos <b>4 criterios básicos</b>:</p>
+          <ul>
+            <li><b>Familiaridad:</b> ¿Qué tan familiar te resulta esta palabra?<br>
+              <span style="color: #666;">(Escala: <i>Nada familiar</i> hasta <i>Muy familiar</i>)</span></li>
+            <br>
+            <li><b>Valencia afectiva:</b> ¿Qué tan agradable/desagradable te hace sentir?<br>
+              <span style="color: #666;">(Escala: <i>Muy desagradable</i> hasta <i>Muy agradable</i>)</span></li>
+            <br>
+            <li><b>Activación (Arousal):</b> ¿Qué nivel de activación/emoción te provoca?<br>
+              <span style="color: #666;">(Escala: <i>Calma absoluta</i> hasta <i>Activación máxima</i>)</span></li>
+            <br>
+            <li><b>Control (Dominancia):</b> ¿Qué tanto control sientes sobre la emoción que te genera?<br>
+              <span style="color: #666;">(Escala: <i>Ningún control</i> hasta <i>Control total</i>)</span></li>
+          </ul>
+        </div>
+      `,
+      // Página 3 - Atributos adicionales para alimentos
+      `
+        <div style="max-width: 650px; text-align: left; margin: 0 auto; line-height: 1.5; font-size: 14px;">
+          <p>Además, cuando el estímulo corresponda de forma específica a un <b>alimento</b>, responderá a <b>3 preguntas adicionales</b>:</p>
+          <ul>
+            <li><b>Deseo de consumo:</b> ¿Qué tanto deseo tienes de comer esto ahora mismo?<br>
+              <span style="color: #666;">(Escala: <i>Ningún deseo</i> hasta <i>Deseo intenso</i>)</span></li>
+            <br>
+            <li><b>Palatabilidad percibida:</b> ¿Qué tan apetitoso te parece este alimento?<br>
+              <span style="color: #666;">(Escala: <i>Nada apetitoso</i> hasta <i>Muy apetitoso</i>)</span></li>
+            <br>
+            <li><b>Saludabilidad:</b> ¿Qué tan saludable consideras que es este alimento?<br>
+              <span style="color: #666;">(Escala: <i>Muy perjudicial</i> hasta <i>Muy saludable</i>)</span></li>
+          </ul>
+        </div>
+      `,
+      // Página 4 - Instrucciones de ejecución
+      `
+        <div style="max-width: 600px; text-align: center; margin: 0 auto; line-height: 1.6;">
+          <p><b>Instrucciones de ejecución:</b></p>
+          <p style="text-align: left;">• Trabaje a un <b>ritmo rápido y fluido</b>, no se detenga demasiado a analizar cada elemento.</p>
+          <p style="text-align: left;">• Responda guiándose exclusivamente por su <b>primera reacción intuitiva o emocional</b>.</p>
+          <br>
+          <p>A continuación, realizaremos una breve verificación para asegurar que ha comprendido las instrucciones.</p>
+        </div>
+      `
+    ];
+
+    /** Bloque de instrucciones */
+    const INSTRUCCIONES = {
+      type: jsPsychInstructions,
+      pages: INSTRUCCIONES_PAGINAS,
+      show_clickable_nav: true,
+      button_label_previous: 'Anterior',
+      button_label_next: 'Siguiente'
+    };
+
+    /** Verificación de comprensión */
+    const COMPRENSION = {
+      type: jsPsychHtmlSliderResponse,
+      stimulus: '<div style="font-size: 24px; font-weight: bold;">¿Qué tan bien comprendió las instrucciones?</div>',
+      labels: ['Nada en absoluto', 'En extremo'],
+      min: 0,
+      max: 100,
+      slider_start: 0,
+      require_movement: true,
+      slider_width: 600,
+      button_label: 'Continuar',
+    };
+
+    /**
+     * Bucle de instrucciones que se repite si la
+     * comprensión es menor a 50.
+     */
+    const BUCLE_INSTRUCCIONES = {
+      timeline: [INSTRUCCIONES, COMPRENSION],
+      /**
+       * Decide si repetir las instrucciones
+       * @param {Object} data - Datos del ensayo
+       * @returns {boolean} true si debe repetir
+       */
+      loop_function: function(data) {
+        const ultimoEnsayo = data.last(1).values()[0];
+        const respuestaComprension = ultimoEnsayo.response;
+
+        if (respuestaComprension < 50) {
+          alert('Dado que quedan dudas sobre las dimensiones, revisemos las instrucciones una vez más.');
+          return true;
+        }
+        return false;
+      }
+    };
+
+    /** Nivel de hambre actual */
+    const HAMBRE = {
+      type: jsPsychHtmlSliderResponse,
+      stimulus: '<div style="font-size: 24px; font-weight: bold;">¿Qué tanta hambre tienes en este momento?</div>',
+      labels: ['Nada en absoluto', 'En extremo'],
+      min: 0,
+      max: 100,
+      slider_start: 50,
+      require_movement: true,
+      slider_width: 600,
+      button_label: 'Continuar',
+      data: { stimulus: 'nivel_hambre' }
+    };
+
+    /**
+     * ============================================
+     * TIMELINE - TRANSICIÓN A EVALUACIÓN
+     * ============================================
+     * Pantalla que anuncia el inicio de la fase
+     * de evaluación.
+     */
+
+    const INSTRUCCIONES_EVALUACION = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+        <div style="max-width: 650px; margin: 0 auto; text-align: center; font-family: sans-serif; line-height: 1.6;">
+          <h2 style="color: #333; margin-bottom: 20px;">Fase de Evaluación</h2>
+          <p style="font-size: 18px; color: #555;">Hemos concluido con la sección de preguntas generales.</p>
+          <p style="font-size: 20px; color: #000; margin-top: 20px;">
+            <strong>Ahora comenzará la fase de evaluación.</strong>
+          </p>
+          <p style="font-size: 16px; color: #666; margin-top: 15px;">
+            A continuación, se te presentarán diferentes palabras en la pantalla.<br>
+            Por favor, evalúa cada una utilizando las escalas visuales análogas según lo que te dicten tus respuestas.
+          </p>
+        </div>
+      `,
+      choices: ['Continuar'],
+      on_finish: function() {
+        // Entrar a pantalla completa para la fase de evaluación
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.log("Error al entrar en pantalla completa:", err);
+          });
+        }
+      }
+    };
+
+    /**
+     * ============================================
+     * FUNCIÓN - CREAR BLOQUE DE EVALUACIÓN
+     * ============================================
+     * Genera un bloque de ensayos para una lista
+     * de estímulos dada.
+     * 
+     * @param {Array} listaEstimulos - Lista de objetos con propiedad 'palabra'
+     * @param {string} tipo - 'alimento' o 'objeto'
+     * @returns {Array} Timeline de ensayos
+     */
+    function crearBloqueEvaluacion(listaEstimulos, tipo) {
+      const subTimeline = [];
+
+      // Determinar atributos según el tipo
+      const listaAtributos = tipo === 'alimento'
+        ? [...ATRIBUTOS_COMUNES, ...ATRIBUTOS_ALIMENTOS_EXTRA]
+        : ATRIBUTOS_COMUNES;
+
+      // Mezclar estímulos aleatoriamente
+      const estimulosAleatorios = jsPsych.randomization.shuffle(listaEstimulos);
+
+      // Crear ensayos para cada estímulo
+      estimulosAleatorios.forEach((est) => {
+        // Pantalla de fijación (punto de atención)
+        const fijacion = {
+          type: jsPsychHtmlKeyboardResponse,
+          stimulus: '<div style="font-size: 40px;">+</div>',
+          choices: 'NO_KEYS',
+          trial_duration: 1000
+        };
+        subTimeline.push(fijacion);
+
+        // Ensayos de evaluación para cada atributo
+        listaAtributos.forEach((atrib) => {
+          subTimeline.push(crearEnsayoSlider(est.palabra, atrib, tipo));
+        });
+      });
+
+      return subTimeline;
+    }
+
+    /**
+     * ============================================
+     * CONSTRUCCIÓN DEL TIMELINE PRINCIPAL
+     * ============================================
+     * Aquí se ensamblan todas las secciones del
+     * experimento en el orden correcto.
+     */
+
+    // Inicializar el timeline
+    const timeline = [];
+
+    // 1. Sección de bienvenida y consentimiento
+    timeline.push(BIENVENIDA);
+    timeline.push(CONSENTIMIENTO_INFORMADO);
+
+    // 2. Cuestionario sociodemográfico
+    timeline.push(
+      FECHA_NACIMIENTO,
+      SEXO,
+      NACIONALIDAD,
+      LENGUA_MATERNA,
+      ESTADO_REPUBLICA,
+      GRADO_ACADEMICO,
+      OCUPACION,
+      ESTADO_CIVIL,
+      DEPENDIENTES,
+      COMPOSICION_HOGAR,
+      VIVIENDA,
+      ALIMENTACION,
+      DIETA,
+      ESTATURA_PESO
+    );
+
+    // 3. Instrucciones y verificación de comprensión
+    timeline.push(BUCLE_INSTRUCCIONES);
+    timeline.push(HAMBRE);
+
+    // 4. Transición a evaluación
+    timeline.push(INSTRUCCIONES_EVALUACION);
+
+    // 5. Bloques experimentales (aleatorizados)
+    const bloqueAlimentos = crearBloqueEvaluacion(ESTIMULOS_ALIMENTOS, 'alimento');
+    const bloqueObjetos = crearBloqueEvaluacion(ESTIMULOS_OBJETOS, 'objeto');
+
+    // Mezclar bloques
+    const bloquesExperimentales = [bloqueAlimentos, bloqueObjetos];
+    const bloquesMezclados = jsPsych.randomization.shuffle(bloquesExperimentales);
+
+    // Agregar bloques al timeline
+    bloquesMezclados.forEach((bloque) => {
+      timeline.push(...bloque);
+    });
+
+    /**
+     * ============================================
+     * GUARDADO DE DATOS CON DATAPIPE
+     * ============================================
+     * Configuración para guardar los datos en
+     * formato CSV mediante DataPipe.
+     */
+
+    const SUBJECT_ID = jsPsych.randomization.randomID(10);
+    const FILENAME = `validacion-${SUBJECT_ID}.csv`;
+
+    const GUARDAR_DATOS = {
+      type: jsPsychPipe,
+      action: 'save',
+      experiment_id: 'TU_ID_REAL_DE_DATAPIPE', // Reemplazar con ID real
+      filename: FILENAME,
+      data_string: function() {
+        // Filtrar datos relevantes
+        const datosFiltrados = jsPsych.data.get()
+          .filterCustom((trial) => {
+            return (trial.stimulus !== undefined && 
+                    trial.response !== null && 
+                    trial.trial_type !== 'html-keyboard-response') ||
+                   (trial.trial_type === 'html-slider-response');
+          })
+          .ignore([
+            'success',
+            'trial_type',
+            'response_index',
+            'view_history',
+            'slider_start',
+            'internal_node_id',
+            'question_order'
+          ]);
+
+        // Aplanar objetos en la columna 'response'
+        datosFiltrados.values().forEach((trial) => {
+          if (typeof trial.response === 'object' && trial.response !== null) {
+            if (Array.isArray(trial.response)) {
+              trial.response = trial.response.join(', ');
+            } else {
+              trial.response = JSON.stringify(trial.response).replace(/["{} ]/g, '');
+            }
+          }
+        });
+
+        const csvFinal = datosFiltrados.csv();
+        
+        // Guardar localmente como respaldo
+        //datosFiltrados.localSave('csv', FILENAME);
+        
+        return csvFinal;
+      }
+    };
+
+    timeline.push(GUARDAR_DATOS);
+
+    /**
+     * ============================================
+     * TIMELINE - DESPEDIDA
+     * ============================================
+     * Pantalla final que agradece la participación.
+     */
+
+    const DESPEDIDA = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <h2>¡Muchas gracias por tu participación!</h2>
+        <p>Tus respuestas han sido registradas de manera exitosa y anónima.</p>
+        <p style="color: #666; font-size: 14px; margin-top: 20px;">
+          Puedes cerrar esta ventana cuando quieras.
+        </p>
+      `,
+      trial_duration: 5000
+    };
+
+    timeline.push(DESPEDIDA);
+
+    /**
+     * ============================================
+     * EJECUCIÓN DEL EXPERIMENTO
+     * ============================================
+     * Inicia el timeline completo.
+     */
+
+    jsPsych.run(timeline);
+
+  </script>
+</body>
+</html>
