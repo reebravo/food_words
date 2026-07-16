@@ -2,7 +2,7 @@
 <html lang="es-MX">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Validación de Estímulos - Estudio de Validación Emocional</title>
   
   <!-- ============================================
@@ -32,37 +32,191 @@
   <link href="jspsych/dist/jspsych.css" rel="stylesheet" type="text/css" />
 
   <!-- ============================================
-       ESTILOS PERSONALIZADOS
+       ESTILOS PERSONALIZADOS (MÍNIMOS Y EFECTIVOS)
        ============================================ -->
   <style>
-    /* Clase para los estímulos principales */
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      font-size: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Contenedor principal */
+    #jspsych-experiment-container,
+    #jspsych-target {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 10px 15px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .jspsych-display-element {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 15px !important;
+      box-sizing: border-box !important;
+    }
+
+    /* ============================================
+       SLIDER - MANTENER TAMAÑO CONSISTENTE
+       ============================================ */
+    
+    /* Contenedor del slider - altura fija */
+    .jspsych-html-slider-response {
+      width: 100%;
+      max-width: 100%;
+      min-height: 380px !important;
+      padding: 15px 10px !important;
+      box-sizing: border-box;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+    }
+
+    /* El slider ocupa todo el ancho */
+    input[type="range"] {
+      width: 100% !important;
+      max-width: 100%;
+      margin: 15px 0;
+      display: block;
+    }
+
+    /* Contenedor de etiquetas - siempre visible */
+    .slider-labels {
+      display: flex !important;
+      justify-content: space-between !important;
+      width: 100% !important;
+      padding: 0 2px !important;
+      margin: 5px 0 0 0 !important;
+      flex-wrap: nowrap !important;
+    }
+
+    /* Etiquetas con saltos de línea */
+    .slider-labels span {
+      display: block !important;
+      word-break: break-word !important;
+      max-width: 45% !important;
+      line-height: 1.2 !important;
+      font-size: clamp(10px, 1.8vw, 13px) !important;
+      color: #555 !important;
+    }
+
+    .slider-labels span:first-child {
+      text-align: left !important;
+      padding-right: 8px !important;
+    }
+
+    .slider-labels span:last-child {
+      text-align: right !important;
+      padding-left: 8px !important;
+    }
+
+    /* ============================================
+       RESTAURAR ESTILO ORIGINAL DEL SLIDER
+       ============================================ */
+    
+    /* No modificar el thumb - dejar el estilo original de jsPsych */
+    /* Solo ajustes menores para móviles */
+    @media screen and (max-width: 480px) {
+      .jspsych-html-slider-response {
+        min-height: 350px !important;
+        padding: 10px 5px !important;
+      }
+      
+      input[type="range"] {
+        height: 8px !important;
+      }
+      
+      .slider-labels span {
+        font-size: 9px !important;
+      }
+    }
+
+    /* ============================================
+       ESTILOS PARA ESTÍMULOS Y ATRIBUTOS
+       ============================================ */
+    
     .estimulo {
-      font-size: 32px;
+      font-size: clamp(24px, 5vw, 32px);
       font-weight: bold;
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    /* Clase para los atributos a evaluar */
-    .atributo {
-      font-size: 20px;
       margin-bottom: 10px;
+      color: #333;
+      text-align: center;
+      word-break: break-word;
     }
 
-    /* Estilos para selects personalizados */
+    .atributo {
+      font-size: clamp(16px, 3vw, 20px);
+      margin-bottom: 15px;
+      text-align: center;
+      line-height: 1.4;
+      color: #444;
+    }
+
+    /* ============================================
+       ESTILOS PARA BOTONES
+       ============================================ */
+    
+    .jspsych-html-slider-response button,
+    .jspsych-html-button-response button {
+      width: 100%;
+      padding: 14px 20px;
+      font-size: clamp(16px, 2.5vw, 18px);
+      border: none;
+      border-radius: 8px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background 0.3s;
+      touch-action: manipulation;
+      font-weight: 500;
+    }
+
+    .jspsych-html-slider-response button:hover,
+    .jspsych-html-button-response button:hover {
+      background: #388E3C;
+    }
+
+    .jspsych-html-slider-response button:active,
+    .jspsych-html-button-response button:active {
+      transform: scale(0.98);
+    }
+
+    /* Botón de rechazar en consentimiento */
+    .jspsych-html-button-response button:last-of-type {
+      background: #f44336;
+    }
+
+    .jspsych-html-button-response button:last-of-type:hover {
+      background: #d32f2f;
+    }
+
+    /* ============================================
+       OTROS ESTILOS
+       ============================================ */
+
     .custom-select {
       width: 100%;
       padding: 12px 15px;
-      font-size: 16px;
+      font-size: clamp(14px, 2vw, 16px);
       border: 2px solid #ddd;
       border-radius: 8px;
       background-color: white;
       cursor: pointer;
       transition: border-color 0.3s ease;
-    }
-
-    .custom-select:hover {
-      border-color: #999;
+      -webkit-appearance: none;
+      appearance: none;
     }
 
     .custom-select:focus {
@@ -71,59 +225,49 @@
       box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
     }
 
-    /* Contenedor para mensajes */
     .message-container {
       max-width: 650px;
       margin: 0 auto;
       text-align: center;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
+      padding: 0 15px;
     }
 
-    /* Logo container */
     .logo-container {
       margin-bottom: 30px;
     }
 
     .logo-container img {
-      height: 65px;
+      height: clamp(50px, 8vw, 65px);
       display: block;
       margin: 0 auto 15px auto;
+      max-width: 100%;
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
     }
   </style>
 </head>
-
 <body>
-  <!-- jsPsych inyectará el contenido aquí -->
   <div id="jspsych-experiment-container"></div>
 
   <script>
     /**
      * ============================================
-     * CONFIGURACIÓN PRINCIPAL DE jsPsych
+     * CONFIGURACIÓN PRINCIPAL
      * ============================================
-     * Inicializa el motor del experimento con las
-     * configuraciones necesarias.
      */
     const jsPsych = initJsPsych({
-      // Función que se ejecuta al finalizar el experimento
       on_finish: function() {
-        // Muestra los datos en formato JSON para depuración
         jsPsych.data.displayData('json');
       },
-      // Configuración para evitar pérdida de datos
       on_close: function() {
         console.log('⚠️ El participante cerró la ventana antes de terminar.');
       }
     });
 
-    /**
-     * ============================================
-     * CONFIGURACIONES GLOBALES
-     * ============================================
-     */
-
-    // Previene el cierre accidental de la página
+    // Prevenir cierre accidental
     window.addEventListener('beforeunload', (event) => {
       event.preventDefault();
       event.returnValue = '¿Estás seguro de que quieres salir? Perderás tu progreso.';
@@ -133,17 +277,12 @@
      * ============================================
      * DEFINICIÓN DE ESTÍMULOS
      * ============================================
-     * Aquí se definen las palabras que se presentarán
-     * durante el experimento.
      */
-
-    /** Estímulos relacionados con alimentos */
     const ESTIMULOS_ALIMENTOS = [
       { palabra: 'Manzana' },
       { palabra: 'Pizza' }
     ];
 
-    /** Estímulos relacionados con objetos cotidianos */
     const ESTIMULOS_OBJETOS = [
       { palabra: 'Lápiz' },
       { palabra: 'Silla' }
@@ -151,76 +290,63 @@
 
     /**
      * ============================================
-     * DEFINICIÓN DE ATRIBUTOS (VAS)
+     * DEFINICIÓN DE ATRIBUTOS CON SALTOS DE LÍNEA
      * ============================================
-     * Cada atributo representa una dimensión a evaluar
-     * con una escala visual análoga (VAS).
      */
-
-    /** Atributos comunes para todos los estímulos */
     const ATRIBUTOS_COMUNES = [
       {
         id: 'familiaridad',
         texto: '¿Qué tan familiar te resulta esta palabra?',
-        min: 'Nada familiar',
-        max: 'Muy familiar'
+        min: 'Nada<br>familiar',
+        max: 'Muy<br>familiar'
       },
       {
         id: 'valencia',
         texto: '¿Qué tan agradable/desagradable te hace sentir?',
-        min: 'Muy desagradable',
-        max: 'Muy agradable'
+        min: 'Muy<br>desagradable',
+        max: 'Muy<br>agradable'
       },
       {
         id: 'arousal',
         texto: '¿Qué nivel de activación/emoción te provoca?',
-        min: 'Calma absoluta',
-        max: 'Activación máxima'
+        min: 'Calma<br>absoluta',
+        max: 'Activación<br>máxima'
       },
       {
         id: 'control',
         texto: '¿Qué tanto control sientes sobre la emoción que te genera?',
-        min: 'Ningún control',
-        max: 'Control total'
+        min: 'Ningún<br>control',
+        max: 'Control<br>total'
       }
     ];
 
-    /** Atributos adicionales solo para alimentos */
     const ATRIBUTOS_ALIMENTOS_EXTRA = [
       {
         id: 'deseo_comer',
         texto: '¿Qué tanto deseo tienes de comer esto ahora mismo?',
-        min: 'Ningún deseo',
-        max: 'Deseo intenso'
+        min: 'Ningún<br>deseo',
+        max: 'Deseo<br>intenso'
       },
       {
         id: 'apetitoso',
         texto: '¿Qué tan apetitoso te parece este alimento?',
-        min: 'Nada apetitoso',
-        max: 'Muy apetitoso'
+        min: 'Nada<br>apetitoso',
+        max: 'Muy<br>apetitoso'
       },
       {
         id: 'saludable',
         texto: '¿Qué tan saludable consideras que es este alimento?',
-        min: 'Muy perjudicial',
-        max: 'Muy saludable'
+        min: 'Muy<br>perjudicial',
+        max: 'Muy<br>saludable'
       }
     ];
 
     /**
      * ============================================
-     * FUNCIONES AUXILIARES
+     * FUNCIÓN PARA CREAR SLIDER (SIMPLIFICADA)
      * ============================================
+     * Mantiene el estilo original de jsPsych
      */
-
-    /**
-     * Crea un objeto de configuración para un slider VAS
-     * @param {string} palabra - La palabra a evaluar
-     * @param {Object} atributo - El atributo a evaluar
-     * @param {string} tipo - 'alimento' o 'objeto'
-     * @returns {Object} Configuración del ensayo
-     */
-    // Modificar la función crearEnsayoSlider
     function crearEnsayoSlider(palabra, atributo, tipo) {
       return {
         type: jsPsychHtmlSliderResponse,
@@ -233,40 +359,8 @@
         max: 100,
         slider_start: 50,
         require_movement: true,
-        slider_width: 600,
+        slider_width: '100%',
         button_label: 'Continuar',
-        on_start: function() {
-          // Pequeño retraso para asegurar que el DOM está listo
-          setTimeout(() => {
-            const slider = document.querySelector('input[type="range"]');
-            const button = document.querySelector('.jspsych-html-slider-response button');
-            
-            if (slider) {
-              // Forzar el foco en el slider
-              slider.focus();
-              
-              // Asegurar que el slider funciona correctamente en fullscreen
-              slider.addEventListener('mousedown', function(e) {
-                e.stopPropagation();
-              });
-              
-              slider.addEventListener('touchstart', function(e) {
-                e.stopPropagation();
-              });
-            }
-            
-            // Si no se puede mover el slider, permitir clic directo en el botón
-            if (button) {
-              button.addEventListener('click', function(e) {
-                if (slider && slider.value === '50') {
-                  // Si el slider no se ha movido, mostrar un mensaje
-                  alert('Por favor, mueve el deslizador antes de continuar.');
-                  e.preventDefault();
-                }
-              });
-            }
-          }, 200);
-        },
         data: {
           stimulus: 'evaluacion_vas',
           tipo_estimulo: tipo,
@@ -280,10 +374,7 @@
      * ============================================
      * TIMELINE - BIENVENIDA
      * ============================================
-     * Primera pantalla del experimento con modo
-     * pantalla completa.
      */
-
     const BIENVENIDA = {
       type: jsPsychFullscreen,
       fullscreen_mode: true,
@@ -310,7 +401,6 @@
       `,
       button_label: 'Comenzar',
       on_finish: function() {
-        // Salir de pantalla completa desupés de la bienvenida
         if (document.fullscreenElement) {
           document.exitFullscreen().catch(err => {
             console.log('Error al salir de pantalla completa:', err);
@@ -323,55 +413,84 @@
      * ============================================
      * TIMELINE - CONSENTIMIENTO INFORMADO
      * ============================================
-     * Muestra el formulario de consentimiento y
-     * maneja la aceptación o rechazo.
      */
-
     const CONSENTIMIENTO_INFORMADO = {
       type: jsPsychHtmlButtonResponse,
       stimulus: `
-        <div style="max-width: 700px; margin: 0 auto; text-align: justify; font-family: sans-serif; line-height: 1.5;">
-          <p style="font-size: 22px; text-align: center;">
-            <strong>FORMULARIO DE CONSENTIMIENTO INFORMADO DIGITAL</strong>
-          </p>
-          <p style="text-align: center; color: #555;">
+        <div style="
+          padding: 15px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+          line-height: 1.6;
+          max-height: 75vh;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+        ">
+          <h2 style="
+            font-size: clamp(18px, 4vw, 24px);
+            text-align: center;
+            margin: 0 0 10px 0;
+          ">
+            FORMULARIO DE CONSENTIMIENTO INFORMADO DIGITAL
+          </h2>
+          
+          <p style="text-align: center; color: #555; font-size: clamp(13px, 2.5vw, 15px);">
             <strong>Proyecto:</strong> "Validación emocional de palabras relacionadas con alimentos"<br>
-            <strong>Contacto:</strong> [Insertar Correo Institucional]
+            <strong>Contacto:</strong> ro355210@uaeh.edu.mx
           </p>
-          <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
-          <p>Por favor, lea atentamente la siguiente información antes de decidir su participación:</p>
-          <p>
-            <strong>1. ¿En qué consiste el estudio?</strong><br>
-            El objetivo de este proyecto es estudiar cómo las personas responden y evalúan emocionalmente diferentes tipos de palabras relacionadas con alimentos. Su participación consistirá en responder un breve cuestionario sociodemográfico y realizar una tarea en línea de evaluación afectiva. La duración estimada es de <strong>20 minutos</strong>.
-          </p>
-          <p>
-            <strong>2. Voluntariedad y derecho a retirarse</strong><br>
-            Su participación es 100% voluntaria. Tiene el derecho de abandonar el estudio en cualquier momento cerrando la pestaña de su navegador.
-          </p>
-          <p>
-            <strong>3. Riesgos y Confidencialidad</strong><br>
-            Este estudio se considera de <strong>riesgo mínimo</strong>. Los datos recolectados serán <strong>completamente anónimos</strong>.
-          </p>
-          <p>
-            <strong>Declaración de Consentimiento:</strong> Al presionar "Acepto participar", manifiesto que soy mayor de edad, que he leído esta información y que es mi decisión libre, consciente y voluntaria participar en esta investigación.
-          </p>
+          
+          <hr style="border: 0; border-top: 2px solid #e0e0e0; margin: 12px 0;">
+          
+          <div style="font-size: clamp(13px, 2.5vw, 15px); color: #333;">
+            <p>Por favor, lea atentamente la siguiente información antes de decidir su participación:</p>
+            
+            <div style="margin: 12px 0;">
+              <p style="font-weight: bold; margin: 0 0 3px 0;">1. ¿En qué consiste el estudio?</p>
+              <p style="margin: 0;">El objetivo de este proyecto es estudiar cómo las personas responden y evalúan emocionalmente diferentes tipos de palabras relacionadas con alimentos. Su participación consistirá en responder un breve cuestionario sociodemográfico y realizar una tarea en línea de evaluación afectiva. La duración estimada es de <strong>20 minutos</strong>.</p>
+            </div>
+            
+            <div style="margin: 12px 0;">
+              <p style="font-weight: bold; margin: 0 0 3px 0;">2. Voluntariedad y derecho a retirarse</p>
+              <p style="margin: 0;">Su participación es 100% voluntaria. Tiene el derecho de abandonar el estudio en cualquier momento cerrando la pestaña de su navegador.</p>
+            </div>
+            
+            <div style="margin: 12px 0;">
+              <p style="font-weight: bold; margin: 0 0 3px 0;">3. Riesgos y Confidencialidad</p>
+              <p style="margin: 0;">Este estudio se considera de <strong>riesgo mínimo</strong>. Los datos recolectados serán <strong>completamente anónimos</strong>.</p>
+            </div>
+            
+            <div style="
+              margin: 15px 0 10px 0;
+              padding: 12px;
+              background-color: #f8f9fa;
+              border-left: 4px solid #4CAF50;
+              border-radius: 4px;
+            ">
+              <p style="margin: 0;">
+                <strong>Declaración de Consentimiento:</strong> Al presionar <strong style="color: #4CAF50;">"Acepto participar"</strong>, manifiesto que soy mayor de edad, que he leído esta información y que es mi decisión libre, consciente y voluntaria participar en esta investigación.
+              </p>
+            </div>
+          </div>
         </div>
       `,
       choices: [
-        '<strong>Acepto participar y comenzar</strong>',
-        'No acepto / Salir'
+        '<strong style="font-size: clamp(15px, 2.5vw, 18px);">✅ Acepto participar</strong>',
+        '<span style="font-size: clamp(13px, 2vw, 15px);">❌ No acepto / Salir</span>'
       ],
-      /**
-       * Maneja la respuesta del consentimiento
-       * @param {Object} data - Datos de la respuesta
-       */
       on_finish: function(data) {
-        // Si rechaza (índice 1), finaliza el experimento
         if (data.response === 1) {
           jsPsych.endExperiment(`
-            <div style="max-width: 600px; margin: 50px auto; text-align: center; font-family: sans-serif;">
-              <h3>El experimento ha finalizado</h3>
-              <p>Usted decidió no aceptar los términos de participación. Ya puede cerrar esta ventana.</p>
+            <div style="
+              padding: 30px 20px;
+              text-align: center;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            ">
+              <h3 style="font-size: clamp(20px, 4vw, 28px); color: #d32f2f; margin-bottom: 10px;">
+                El experimento ha finalizado
+              </h3>
+              <p style="font-size: clamp(14px, 2.5vw, 18px); color: #555;">
+                Usted decidió no aceptar los términos de participación.<br>
+                Ya puede cerrar esta ventana de forma segura.
+              </p>
             </div>
           `);
         }
@@ -680,7 +799,7 @@
             <li><b>Activación (Arousal):</b> ¿Qué nivel de activación/emoción te provoca?<br>
               <span style="color: #666;">(Escala: <i>Calma absoluta</i> hasta <i>Activación máxima</i>)</span></li>
             <br>
-            <li><b>Control (Dominancia):</b> ¿Qué tanto control sientes sobre la emoción que te genera?<br>
+            <li><b>Control (Dominancia):</b> ¿Qué tanto control sientes<br>sobre la emoción que te genera?<br>
               <span style="color: #666;">(Escala: <i>Ningún control</i> hasta <i>Control total</i>)</span></li>
           </ul>
         </div>
@@ -725,13 +844,13 @@
     /** Verificación de comprensión */
     const COMPRENSION = {
       type: jsPsychHtmlSliderResponse,
-      stimulus: '<div style="font-size: 24px; font-weight: bold;">¿Qué tan bien comprendió las instrucciones?</div>',
-      labels: ['Nada en absoluto', 'En extremo'],
+      stimulus: '<div style="font-size: 24px; font-weight: bold;">¿Qué tan bien comprendió<br>las instrucciones?</div>',
+      labels: ['Nada en<br>absoluto', 'Completamente'],
       min: 0,
       max: 100,
       slider_start: 0,
       require_movement: true,
-      slider_width: 600,
+      slider_width: '100%',
       button_label: 'Continuar',
     };
 
@@ -761,13 +880,13 @@
     /** Nivel de hambre actual */
     const HAMBRE = {
       type: jsPsychHtmlSliderResponse,
-      stimulus: '<div style="font-size: 24px; font-weight: bold;">¿Qué tanta hambre tienes en este momento?</div>',
-      labels: ['Nada en absoluto', 'En extremo'],
+      stimulus: '<div style="font-size: 24px; font-weight: bold;">¿Qué tanta hambre<br>tienes en este momento?</div>',
+      labels: ['Nada en<br>absoluto', 'En<br>extremo'],
       min: 0,
       max: 100,
       slider_start: 50,
       require_movement: true,
-      slider_width: 600,
+      slider_width: '100%',
       button_label: 'Continuar',
       data: { stimulus: 'nivel_hambre' }
     };
